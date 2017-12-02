@@ -17,4 +17,19 @@ input_vals = [
     [919, 615, 335, 816, 138, 97, 881, 790, 855, 89, 451, 789, 423, 108, 95, 116]
 ]
 
-print(sum(max(row) - min(row) for row in input_vals))
+#input_vals = [
+#    [5, 9, 2, 8],
+#    [9, 4, 7, 3],
+#    [3, 8, 6, 5]
+#]
+
+res = 0
+for row in input_vals:
+    for index, val1 in enumerate(row):
+        for val2 in row[index + 1:]:
+            small = min(val1, val2)
+            big = max(val1, val2)
+            if (big % small) == 0:
+                res += big // small
+
+print(res)
