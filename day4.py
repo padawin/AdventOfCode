@@ -514,9 +514,11 @@ input_vals = [
 ]
 
 tests = [
-    [["aa", "bb", "cc", "dd", "ee"], True],
-    [["aa", "bb", "cc", "dd", "aa"], False],
-    [["aa", "bb", "cc", "dd", "aaa"], True]
+    [["abcde", "fghij"], True],
+    [["abcde", "xyz", "ecdab"], False],
+    [["a", "ab", "abc", "abd", "abf", "abj"], True],
+    [["iiii", "oiii", "ooii", "oooi", "oooo"], True],
+    [["oiii", "ioii", "iioi", "iiio"], False]
 ]
 
 
@@ -527,9 +529,10 @@ def validate_word(word, words):
 def validate_phrase(phrase):
     words = {}
     for word in phrase:
-        if not validate_word(word, words):
+        sorted_word = ''.join(sorted(word))
+        if not validate_word(sorted_word, words):
             return False
-        words[word] = 1
+        words[sorted_word] = 1
     return True
 
 for test in tests:
