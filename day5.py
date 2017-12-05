@@ -86,7 +86,10 @@ def move(vals, position):
 
     old_pos = position
     position += vals[position]
-    vals[old_pos] += 1
+    if vals[old_pos] >= 3:
+        vals[old_pos] -= 1
+    else:
+        vals[old_pos] += 1
     return position
 
 
@@ -104,5 +107,6 @@ def run(vals):
 
 tests = [0, 3, 0, 1, -3]
 res = run(tests)
-assert res == 5
+assert res == 10
+assert tests == [2, 3, 2, 3, -1]
 print(run(input_vals))
