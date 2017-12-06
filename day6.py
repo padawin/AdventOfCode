@@ -6,10 +6,10 @@ def sign(vals):
 
 
 nb_elements = len(input_vals)
-states = set()
-states.add(sign(input_vals))
+states = {}
 
 nb_iterations = 0
+states[sign(input_vals)] = nb_iterations
 while True:
     max_val = max(input_vals)
     index_val = input_vals.index(max_val)
@@ -17,9 +17,12 @@ while True:
     for i in range(max_val):
         input_vals[(index_val + 1 + i) % nb_elements] += 1
     nb_states = len(states)
-    states.add(sign(input_vals))
     nb_iterations += 1
-    if nb_states == len(states):
+    signed = sign(input_vals)
+    if signed in states:
         break
+    else:
+        states[signed] = nb_iterations
 
-print(nb_iterations)
+
+print(nb_iterations - states[sign(input_vals)])
