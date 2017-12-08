@@ -1041,13 +1041,16 @@ class Analyser(object):
             threshold
         )
         self.registers[register] += operation * value if do_action else 0
+        if self.max_value is None or self.registers[register] > self.max_value:
+            self.max_value = self.registers[register]
 
     def highest_register(self, instructions):
+        self.max_value = None
         self.registers = {}
         for instruction in instructions:
             self.analyse_instruction(instruction)
 
-        return max(self.registers.values())
+        return max(self.registers.values()), self.max_value
 
 
 test = [
@@ -1058,6 +1061,6 @@ test = [
 ]
 
 a = Analyser()
-assert a.highest_register(test) == 1
+assert a.highest_register(test) == (1, 10)
 
 print(a.highest_register(input_vals))
