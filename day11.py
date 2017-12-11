@@ -693,11 +693,15 @@ coordinates = {
 
 def get_vector(directions):
     vector = [0, 0]
+    max_distance = 0
     for direction in directions:
         vector[0] += coordinates[direction][0]
         vector[1] += coordinates[direction][1]
+        distance = get_distance(vector)
+        if max_distance < distance:
+            max_distance = distance
 
-    return vector
+    return vector, max_distance
 
 
 def get_distance(vector):
@@ -706,23 +710,27 @@ def get_distance(vector):
     if vector[0] < 0 and vector[1] > 0 or vector[0] > 0 and vector[1] < 0:
         distance = min(abs(c) for c in vector)
         direction = coordinates['n' if vector[0] < 0 and vector[1] > 0 else 's']
-        vector[0] -= distance * direction[0]
-        vector[1] -= distance * direction[1]
-
-    return distance + sum(abs(c) for c in vector)
+        distance += abs(vector[0] - distance * direction[0])
+        distance += abs(vector[1] - distance * direction[1])
+        return distance
+    else:
+        return distance + sum(abs(c) for c in vector)
 
 
 tests = [
-    [['ne', 'ne', 'ne'], [0, 3], 3],
-    [['ne', 'ne', 'sw', 'sw'], [0, 0], 0],
-    [['ne', 'ne', 's', 's'], [2, 0], 2],
-    [['se', 'sw', 'se', 'sw', 'sw'], [2, -3], 3]
+    [['ne', 'ne', 'ne'], [0, 3], 3, 3],
+    [['ne', 'ne', 'sw', 'sw'], [0, 0], 2, 0],
+    [['ne', 'ne', 's', 's'], [2, 0], 2, 2],
+    [['se', 'sw', 'se', 'sw', 'sw'], [2, -3], 3, 3]
 ]
 
 for test in tests:
-    vector = get_vector(test[0])
+    vector, max_distance = get_vector(test[0])
     assert vector == test[1]
+    assert max_distance == test[2]
     distance = get_distance(vector)
-    assert distance == test[2]
+    assert distance == test[3]
 
-print(get_distance(get_vector(directions)))
+vector, max_distance = get_vector(directions)
+print(max_distance)
+print(get_distance(vector))
