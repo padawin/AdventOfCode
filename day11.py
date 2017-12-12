@@ -706,7 +706,6 @@ def get_vector(directions):
 
 def get_distance(vector):
     distance = 0
-    # add some north
     if vector[0] < 0 and vector[1] > 0 or vector[0] > 0 and vector[1] < 0:
         distance = min(abs(c) for c in vector)
         direction = coordinates['n' if vector[0] < 0 and vector[1] > 0 else 's']
