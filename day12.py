@@ -2015,6 +2015,18 @@ def get_links_to(links, to):
     return reachable
 
 
+def get_groups(links):
+    processed = set()
+    groups = []
+    for index, node in enumerate(links):
+        if index not in processed:
+            group = get_links_to(links, index)
+            groups.append(group)
+            processed.update(group)
+
+    return groups
+
+
 links = [
     [2, ],
     [1, ],
@@ -2029,4 +2041,9 @@ reachables = get_links_to(links, 0)
 assert len(reachables) == 6
 assert 1 not in reachables
 
-print(len(get_links_to(data, 0)))
+groups = get_groups(links)
+assert len(groups) == 2
+assert len(groups[0]) == 6
+assert len(groups[1]) == 1
+
+print(len(get_groups(data)))
