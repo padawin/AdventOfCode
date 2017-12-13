@@ -66,10 +66,12 @@ print(sum(get_severity(layers, 0)))
 
 has_severity = True
 wait = -1
-while has_severity:
+while True:
     wait += 1
-    severity = len(get_severity(layers, wait))
-    has_severity = severity > 0
+    try:
+        first = next(rank * depth for rank, depth in layers.items() if depth == 1 or (wait + rank) % ((depth - 1) * 2) == 0)
+    except StopIteration:
+        break
 
 print(wait)
 
