@@ -52,11 +52,33 @@ test = {
 }
 
 
-def get_severity(layers):
-    return sum([rank * depth
-                for rank, depth in layers.items()
-                if depth == 1 or rank % ((depth - 1) * 2) == 0])
+def get_severity(layers, shift):
+    return [rank * depth
+            for rank, depth in layers.items()
+            if depth == 1 or (shift + rank) % ((depth - 1) * 2) == 0]
 
 
-assert get_severity(test) == 24
-print(get_severity(layers))
+assert len(get_severity(test, 0)) > 0
+assert sum(get_severity(test, 0)) == 24
+assert len(get_severity(test, 10)) == 0
+print(sum(get_severity(layers, 0)))
+
+
+has_severity = True
+wait = -1
+while has_severity:
+    wait += 1
+    severity = len(get_severity(layers, wait))
+    has_severity = severity > 0
+
+print(wait)
+
+
+# rank  > 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
+# depth V
+#     1   1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
+#     2   1  0  1  0  1  0  1  0  1  0  1  0  1  0  1  0  1  0  1  0  1
+#     3   1  0  0  0  1  0  0  0  1  0  0  0  1  0  0  0  1  0  0  0  1
+#     4   1  0  0  0  0  0  1  0  0  0  0  0  1  0  0  0  0  0  1  0  1
+#     5   1  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0  1  0  0  0  0
+#
