@@ -1,6 +1,3 @@
-input_vals = '225,171,131,2,35,5,0,13,1,246,54,97,255,98,254,110'
-
-
 def get_ascii_codes(input_str):
     return [ord(c) for c in input_str] + [17, 31, 73, 47, 23]
 
@@ -58,8 +55,10 @@ def knot(s):
     return hash_list_to_str(dense)
 
 
-assert knot("") == "a2582a3a0e66e6e86e3812dcb672a272"
-assert knot("AoC 2017") == "33efeb34ea91902bb2f59c9920caa6cd"
-assert knot("1,2,3") == "3efbe78a8d82f29979031a4aa0b16a9d"
-assert knot("1,2,4") == "63960835bcdc130f0b66d7ff4f6a5a8e"
-print(knot(input_vals))
+if __name__ == '__main__':
+    input_vals = '225,171,131,2,35,5,0,13,1,246,54,97,255,98,254,110'
+    assert knot("") == "a2582a3a0e66e6e86e3812dcb672a272"
+    assert knot("AoC 2017") == "33efeb34ea91902bb2f59c9920caa6cd"
+    assert knot("1,2,3") == "3efbe78a8d82f29979031a4aa0b16a9d"
+    assert knot("1,2,4") == "63960835bcdc130f0b66d7ff4f6a5a8e"
+    print(knot(input_vals))
