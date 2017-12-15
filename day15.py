@@ -1,16 +1,18 @@
-def find_nb_common(a, b):
-    factor_a = 16807
-    factor_b = 48271
+def create_gen(power, factor):
     mod = 2147483647
-    power_a = a
-    power_b = b
-    nb = 0
-    for i in range(40000000):
-        power_a = ((power_a % mod) * factor_a) % mod
-        power_b = ((power_b % mod) * factor_b) % mod
-        if power_a & 65535 == power_b & 65535:
-            nb += 1
-    return nb
+    while True:
+        power = ((power % mod) * factor) % mod
+        yield power
+
+
+def find_nb_common(a, b):
+    gen_a = create_gen(a, 16807)
+    gen_b = create_gen(b, 48271)
+    return sum(
+        1
+        for i in range(40000000)
+        if next(gen_a) & 65535 == next(gen_b) & 65535
+    )
 
 
 test_a = 65
