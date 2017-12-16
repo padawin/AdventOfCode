@@ -41,5 +41,12 @@ programs_test = 'abcde'
 programs_test = dance(programs_test, ['s1', 'x3/4', 'pe/b'])
 assert programs_test == 'baedc'
 
-programs = dance(programs, input_data)
-print(programs)
+end_programs = dance(programs, input_data)
+
+orig_programs = programs
+for i in range(1000000000):
+    programs = dance(programs, input_data)
+    print(i + 1, programs)
+    if programs == orig_programs:
+        break
+print(1000000000 % (i + 1))
