@@ -1,12 +1,22 @@
-class Duet(object):
+class Program(object):
+    def __init__(self, program_id):
+        self.id = program_id
+        self.registers = {
+            'a': 0, 'b': 0, 'c': 0, 'd': 0, 'e': 0, 'f': 0, 'g': 0, 'h': 0, 'i': 0,
+            'j': 0, 'k': 0, 'l': 0, 'm': 0, 'n': 0, 'o': 0, 'p': program_id, 'q': 0, 'r': 0,
+            's': 0, 't': 0, 'u': 0, 'v': 0, 'w': 0, 'x': 0, 'y': 0, 'z': 0
+        }
+        self.receive_queue = []
+        self.peer = None
+        self.blocked = False
+        self.count_send = 0
+        self.current_instruction = 0
+
+    def set_peer(self, peer):
+        self.peer = peer
+
     def _get_val(self, x):
         return self.registers[x] if x in self.registers else x
-
-    def snd(self, x):
-        """
-        plays a sound with a frequency equal to the value of X.
-        """
-        self.last_sounded = x, self.registers[x]
 
     def set(self, x, y):
         """
@@ -35,15 +45,34 @@ class Duet(object):
         """
         self.registers[x] = self.registers[x] % self._get_val(y)
 
+    def snd(self, x):
+        """
+        sends the value of x to its peer
+        """
+        self.count_send += 1
+        self.peer.queue_message(self._get_val(x))
+
+    def queue_message(self, val):
+        self.receive_queue.append(val)
+        self.blocked = False
+
     def rcv(self, x):
         """
-        recovers the frequency of the last sound played, but only when the
-        value of X is not zero. (If it is zero, the command does nothing.)
+        receives a value and stores it in register x.
+        does nothing else while hasn't received anything.
         """
-        if self.registers[x] != 0:
-            self.stop_process = True
+        if len(self.receive_queue) > 0:
+            self.registers[x] = self.receive_queue.pop(0)
+            self.blocked = False
         else:
-            self.current_instruction += 1
+            self.blocked = True
+            return 0
+
+    def finished(self, instructions):
+        return (
+            self.current_instruction < 0 or
+            self.current_instruction >= len(instructions)
+        )
 
     def jgz(self, x, y):
         """
@@ -51,41 +80,46 @@ class Duet(object):
         greater than zero. (An offset of 2 skips the next instruction, an
         offset of -1 jumps to the previous instruction, and so on.)
         """
-        return self._get_val(y) if self.registers[x] > 0 else 1
+        return self._get_val(y) if self._get_val(x) > 0 else None
 
-    def run(self, duet):
-        self.last_sounded = None
-        self.stop_process = False
-        self.registers = {
-            'a': 0, 'b': 0, 'c': 0, 'd': 0, 'e': 0, 'f': 0, 'g': 0, 'h': 0, 'i': 0,
-            'j': 0, 'k': 0, 'l': 0, 'm': 0, 'n': 0, 'o': 0, 'p': 0, 'q': 0, 'r': 0,
-            's': 0, 't': 0, 'u': 0, 'v': 0, 'w': 0, 'x': 0, 'y': 0, 'z': 0
-        }
-        self.current_instruction = 0
-        while not self.stop_process and self.current_instruction < len(duet):
-            instruction = duet[self.current_instruction]
-            method = getattr(self, instruction[0])
-            next = method(*instruction[1:])
-            self.current_instruction += next if next else 1
+    def run_instruction(self, instructions):
+        instruction = instructions[self.current_instruction]
+        method = getattr(self, instruction[0])
+        offset = method(*instruction[1:])
+        self.current_instruction += 1 if offset is None else offset
 
 
-d = Duet()
-d.run([
-    ['set', 'a', 1],
-    ['add', 'a', 2],
-    ['mul', 'a', 'a'],
-    ['mod', 'a', 5],
-    ['snd', 'a'],
-    ['set', 'a', 0],
+def run_programs(instructions):
+    prog1 = Program(0)
+    prog2 = Program(1)
+    prog1.set_peer(prog2)
+    prog2.set_peer(prog1)
+    blocked = False
+    current_program = prog1
+    while not blocked:
+        current_program.run_instruction(instructions)
+        blocked = current_program.blocked or current_program.finished(instructions)
+        if blocked:
+            current_program = current_program.peer
+            blocked = current_program.blocked or current_program.finished(instructions)
+    print(prog2.count_send)
+
+
+test_input = [
+    ['snd', 1],
+    ['snd', 2],
+    ['snd', 'p'],
     ['rcv', 'a'],
-    ['jgz', 'a', -1],
-    ['set', 'a', 1],
-    ['jgz', 'a', -2]
-])
-assert d.last_sounded == ('a', 4)
+    ['rcv', 'b'],
+    ['rcv', 'c'],
+    ['rcv', 'd']
+]
+
+print("run tests")
+run_programs(test_input)
 
 
-d.run([
+input_data = [
     ['set', 'i', 31],
     ['set', 'a', 1],
     ['mul', 'p', 17],
@@ -127,5 +161,6 @@ d.run([
     ['snd', 'a'],
     ['jgz', 'f', -16],
     ['jgz', 'a', -19],
-])
-print(d.last_sounded)
+]
+print("run prog")
+run_programs(input_data)
