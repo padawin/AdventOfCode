@@ -1,26 +1,22 @@
-def build_grid(input_data=None):
+import io
+import sys
+
+
+def build_grid(input_data):
     grid = []
     read = True
     width = 0
     start_col = None
-    while read:
-        if input_data is not None:
-            line = input_data.pop(0)
-        else:
-            line = input()
+    rows = [line.rstrip('\n') for line in input_data.readlines()]
+    for row_str in rows:
         row = []
-        for col, c in enumerate(line):
+        for col, c in enumerate(row_str):
             row.append(c)
             if start_col is None and c == '|':
                 start_col = col
         grid.append(row)
         if width == 0:
             width = len(row)
-
-        read = (
-            isinstance(input_data, list) and len(input_data) != 0
-            or input_data is None and line.strip() != ''
-        )
     return grid, start_col
 
 
@@ -76,7 +72,7 @@ test_data = [
     '     +B-+  +--+ '
 ]
 
-grid, start_col = build_grid(test_data)
+grid, start_col = build_grid(io.StringIO('\n'.join(test_data)))
 assert start_col == 5
 assert grid == [
     [' ', ' ', ' ', ' ', ' ', '|', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
@@ -91,6 +87,6 @@ letters, steps = travel(grid, start_col)
 assert ''.join(letters) == 'ABCDEF'
 assert steps == 38
 
-grid, start_col = build_grid()
+grid, start_col = build_grid(sys.stdin)
 letters, steps = travel(grid, start_col)
 print(steps)
