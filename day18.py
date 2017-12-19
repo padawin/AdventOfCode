@@ -1,11 +1,8 @@
 class Program(object):
     def __init__(self, program_id):
         self.id = program_id
-        self.registers = {
-            'a': 0, 'b': 0, 'c': 0, 'd': 0, 'e': 0, 'f': 0, 'g': 0, 'h': 0, 'i': 0,
-            'j': 0, 'k': 0, 'l': 0, 'm': 0, 'n': 0, 'o': 0, 'p': program_id, 'q': 0, 'r': 0,
-            's': 0, 't': 0, 'u': 0, 'v': 0, 'w': 0, 'x': 0, 'y': 0, 'z': 0
-        }
+        self.registers = {}
+        self.registers['p'] = self.id
         self.receive_queue = []
         self.peer = None
         self.blocked = False
@@ -16,7 +13,13 @@ class Program(object):
         self.peer = peer
 
     def _get_val(self, x):
-        return self.registers[x] if x in self.registers else x
+        try:
+            return self.registers[x]
+        except KeyError:
+            try:
+                return int(x)
+            except ValueError:
+                return 0
 
     def set(self, x, y):
         """
