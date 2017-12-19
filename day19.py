@@ -42,6 +42,7 @@ def travel(grid, start_x):
     direction = 'down'
     curr = {'x': start_x, 'y': 0}
     letters = []
+    steps = 0
     end_reached = False
     while not end_reached:
         curr_char = grid[curr['y']][curr['x']]
@@ -60,8 +61,9 @@ def travel(grid, start_x):
             curr['x'] -= 1
         elif direction == 'right':
             curr['x'] += 1
+        steps += 1
 
-    return letters
+    return letters, steps
 
 
 
@@ -85,8 +87,10 @@ assert grid == [
     [' ', ' ', ' ', ' ', ' ', '+', 'B', '-', '+', ' ', ' ', '+', '-', '-', '+', ' ']
 ]
 
-letters = travel(grid, start_col)
+letters, steps = travel(grid, start_col)
 assert ''.join(letters) == 'ABCDEF'
+assert steps == 38
 
 grid, start_col = build_grid()
-print(''.join(travel(grid, start_col)))
+letters, steps = travel(grid, start_col)
+print(steps)
