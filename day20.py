@@ -6,13 +6,16 @@ import sys
 def find_closest_particle(particles):
     closest = None
     for index, particle in enumerate(particles):
+        a = sum(abs(val) for val in particle['a'])
+        s = sum(abs(val) for val in particle['s'])
+        p = sum(abs(val) for val in particle['p'])
         if (
             closest is None or
-            closest['a'] > particle['a'] or
-            closest['a'] == particle['a'] and closest['s'] > particle['s'] or
-            closest['a'] == particle['a'] and closest['s'] == particle['s'] and closest['p'] > particle['p']
+            closest['a'] > a or
+            closest['a'] == a and closest['s'] > s or
+            closest['a'] == a and closest['s'] == s and closest['p'] > p
         ):
-            closest = {'index': index, **particle}
+            closest = {'index': index, 'a': a, 's': s, 'p': p}
 
     return closest
 
@@ -23,9 +26,9 @@ def get_particles(stream):
     for line in stream.readlines():
         p = re.search(reg, line.rstrip('\n'))
         particle = {
-            'p': abs(int(p.group(1))) + abs(int(p.group(2))) + abs(int(p.group(3))),
-            's': abs(int(p.group(4))) + abs(int(p.group(5))) + abs(int(p.group(6))),
-            'a': abs(int(p.group(7))) + abs(int(p.group(8))) + abs(int(p.group(9)))
+            'p': (int(p.group(1)), int(p.group(2)), int(p.group(3))),
+            's': (int(p.group(4)), int(p.group(5)), int(p.group(6))),
+            'a': (int(p.group(7)), int(p.group(8)), int(p.group(9)))
         }
         particles.append(particle)
     return particles
