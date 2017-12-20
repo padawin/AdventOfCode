@@ -26,11 +26,11 @@ def get_particles(stream):
     reg = 'p=<([^,]+),([^,]+),([^>]+)>, v=<([^,]+),([^,]+),([^>]+)>, a=<([^,]+),([^,]+),([^>]+)>'
     for line in stream.readlines():
         p = re.search(reg, line.rstrip('\n'))
-        particle = {
-            'p': (int(p.group(1)), int(p.group(2)), int(p.group(3))),
-            's': (int(p.group(4)), int(p.group(5)), int(p.group(6))),
-            'a': (int(p.group(7)), int(p.group(8)), int(p.group(9)))
-        }
+        particle = (
+            (int(p.group(1)), int(p.group(2)), int(p.group(3))),
+            (int(p.group(4)), int(p.group(5)), int(p.group(6))),
+            (int(p.group(7)), int(p.group(8)), int(p.group(9)))
+        )
         particles.append(particle)
     return particles
 
@@ -70,9 +70,11 @@ def remove_collisions(particles):
                     solve_equation(ay, by, cy),
                     solve_equation(az, bz, cz)
                 ]
-                if c != 0 and c is not None
+                if c is not None
             }
 
+            if len(collision) > 1 and 0 in collision:
+                collision -= {0}
             if len(collision) == 1:
                 collision = str(collision.pop())
                 if collision in collisions:
@@ -89,43 +91,56 @@ def remove_collisions(particles):
     return particles_indexes
 
 
-test_data_1 = """\
-p=< 3,0,0>, v=< 2,0,0>, a=<-1,0,0>
-p=< 4,0,0>, v=< 0,0,0>, a=<-2,0,0>
-"""
-test_data_2 = """\
-p=< 3,0,0>, v=< 2,0,0>, a=<-2,0,0>
-p=< 4,0,0>, v=< 0,0,0>, a=<-2,0,0>
-"""
-test_data_3 = """\
-p=< 3,0,0>, v=< 2,0,0>, a=<-1,0,0>
-p=< 4,0,0>, v=< 2,0,0>, a=<-2,0,0>
-"""
-particles_1 = get_particles(io.StringIO(test_data_1))
-assert find_closest_particle(particles_1)['index'] == 0
-particles_2 = get_particles(io.StringIO(test_data_2))
-assert find_closest_particle(particles_2)['index'] == 1
-particles_3 = get_particles(io.StringIO(test_data_3))
-assert find_closest_particle(particles_3)['index'] == 0
-
-test_data_collisions = """\
-p=<-6,0,0>, v=< 3,0,0>, a=< 0,0,0>
-p=<-4,0,0>, v=< 2,0,0>, a=< 0,0,0>
-p=<-2,0,0>, v=< 1,0,0>, a=< 0,0,0>
-p=< 3,0,0>, v=<-1,0,0>, a=< 0,0,0>
-"""
-particles = get_particles(io.StringIO(test_data_collisions))
-assert remove_collisions(particles) == {3}
-
-test_data_collisions = """\
-p=<-6,6,0>, v=< 3,-3,0>, a=< 0,0,0>
-p=<-4,0,0>, v=< 2,0,0>, a=< 0,0,0>
-p=<0,-2,0>, v=< 0,1,0>, a=< 0,0,0>
-p=< 3,0,0>, v=<-1,0,0>, a=< 0,0,0>
-"""
-particles = get_particles(io.StringIO(test_data_collisions))
-assert remove_collisions(particles) == {3}
-
+# test_data_1 = """\
+# p=< 3,0,0>, v=< 2,0,0>, a=<-1,0,0>
+# p=< 4,0,0>, v=< 0,0,0>, a=<-2,0,0>
+# """
+# test_data_2 = """\
+# p=< 3,0,0>, v=< 2,0,0>, a=<-2,0,0>
+# p=< 4,0,0>, v=< 0,0,0>, a=<-2,0,0>
+# """
+# test_data_3 = """\
+# p=< 3,0,0>, v=< 2,0,0>, a=<-1,0,0>
+# p=< 4,0,0>, v=< 2,0,0>, a=<-2,0,0>
+# """
+# particles_1 = get_particles(io.StringIO(test_data_1))
+# assert find_closest_particle(particles_1)['index'] == 0
+# particles_2 = get_particles(io.StringIO(test_data_2))
+# assert find_closest_particle(particles_2)['index'] == 1
+# particles_3 = get_particles(io.StringIO(test_data_3))
+# assert find_closest_particle(particles_3)['index'] == 0
+#
+# test_data_collisions = """\
+# p=<-6,0,0>, v=< 3,0,0>, a=< 0,0,0>
+# p=<-4,0,0>, v=< 2,0,0>, a=< 0,0,0>
+# p=<-2,0,0>, v=< 1,0,0>, a=< 0,0,0>
+# p=< 3,0,0>, v=<-1,0,0>, a=< 0,0,0>
+# """
+# particles = get_particles(io.StringIO(test_data_collisions))
+# assert remove_collisions(particles) == {3}
+#
+# test_data_collisions = """\
+# p=<-6,6,0>, v=< 3,-3,0>, a=< 0,0,0>
+# p=<-4,0,0>, v=< 2,0,0>, a=< 0,0,0>
+# p=<0,-2,0>, v=< 0,1,0>, a=< 0,0,0>
+# p=< 3,0,0>, v=<-1,0,0>, a=< 0,0,0>
+# """
+# particles = get_particles(io.StringIO(test_data_collisions))
+# assert remove_collisions(particles) == {3}
+#
 particles = get_particles(sys.stdin)
-print(find_closest_particle(particles)['index'])
-print(len(remove_collisions(particles)))
+# print(find_closest_particle(particles)['index'])
+# print(len(remove_collisions(particles)))
+
+from collections import Counter
+
+def run_p(p):
+    (x, y, z), (vx, vy, vz), (ax, ay, az) = p
+    vx, vy, vz = vx + ax, vy + ay, vz + az
+    x, y, z = x + vx, y + vy, z + vz
+    return (x, y, z), (vx, vy, vz), (ax, ay, az)
+
+for i in range(10000):
+    c = Counter(x[0] for x in particles)
+    particles = [run_p(x) for x in particles if c[x[0]] == 1]
+    print(len(particles))
