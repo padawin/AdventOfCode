@@ -3,21 +3,8 @@ import sys
 
 
 def build_grid(input_data):
-    grid = []
-    read = True
-    width = 0
-    start_col = None
-    rows = [line.rstrip('\n') for line in input_data.readlines()]
-    for row_str in rows:
-        row = []
-        for col, c in enumerate(row_str):
-            row.append(c)
-            if start_col is None and c == '|':
-                start_col = col
-        grid.append(row)
-        if width == 0:
-            width = len(row)
-    return grid, start_col
+    grid = [line.rstrip('\n') for line in input_data.readlines()]
+    return grid, grid[0].find('|')
 
 
 def _change_direction(grid, curr, direction):
@@ -75,12 +62,12 @@ test_data = [
 grid, start_col = build_grid(io.StringIO('\n'.join(test_data)))
 assert start_col == 5
 assert grid == [
-    [' ', ' ', ' ', ' ', ' ', '|', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-    [' ', ' ', ' ', ' ', ' ', '|', ' ', ' ', '+', '-', '-', '+', ' ', ' ', ' ', ' '],
-    [' ', ' ', ' ', ' ', ' ', 'A', ' ', ' ', '|', ' ', ' ', 'C', ' ', ' ', ' ', ' '],
-    [' ', 'F', '-', '-', '-', '|', '-', '-', '-', '-', 'E', '|', '-', '-', '+', ' '],
-    [' ', ' ', ' ', ' ', ' ', '|', ' ', ' ', '|', ' ', ' ', '|', ' ', ' ', 'D', ' '],
-    [' ', ' ', ' ', ' ', ' ', '+', 'B', '-', '+', ' ', ' ', '+', '-', '-', '+', ' ']
+    '     |          ',
+    '     |  +--+    ',
+    '     A  |  C    ',
+    ' F---|----E|--+ ',
+    '     |  |  |  D ',
+    '     +B-+  +--+ '
 ]
 
 letters, steps = travel(grid, start_col)
