@@ -1,4 +1,5 @@
 import re
+import math
 import io
 import sys
 
@@ -34,6 +35,60 @@ def get_particles(stream):
     return particles
 
 
+def solve_equation(a, b, c):
+    t = None
+    if a != 0:
+        d = (b ** 2) - 4 * a * c
+        if d >= 0:
+            t = max(
+                (-b - math.sqrt(d)) / (2 * a),
+                (-b + math.sqrt(d)) / (2 * a)
+            )
+    elif b != 0:
+        t = -c / b
+        t = t if t >= 0 else None
+    elif c == 0:
+        t = c
+
+    return t
+
+
+def remove_collisions(particles):
+    nb_particles = len(particles)
+    particles_indexes = set(range(len(particles)))
+    collisions = {}
+    for i, p1 in enumerate(particles):
+        for j in range(i + 1, nb_particles):
+            p2 = particles[j]
+            ax, bx, cx = [p1[x][0] - p2[x][0] for x in ['a', 's', 'p']]
+            ay, by, cy = [p1[y][1] - p2[y][1] for y in ['a', 's', 'p']]
+            az, bz, cz = [p1[z][2] - p2[z][2] for z in ['a', 's', 'p']]
+            collision = {
+                c
+                for c in [
+                    solve_equation(ax, bx, cx),
+                    solve_equation(ay, by, cy),
+                    solve_equation(az, bz, cz)
+                ]
+                if c != 0 and c is not None
+            }
+
+            if len(collision) == 1:
+                collision = str(collision.pop())
+                if collision in collisions:
+                    collisions[collision].add(i)
+                    collisions[collision].add(j)
+                else:
+                    collisions[collision] = {i, j}
+
+    for collision_time in sorted(collisions, key=lambda collision: collision[0]):
+        particles_colliding = collisions[collision_time]
+        if particles_colliding.issubset(particles_indexes):
+            particles_indexes -= particles_colliding
+
+    return particles_indexes
+
+
 test_data_1 = """\
 p=< 3,0,0>, v=< 2,0,0>, a=<-1,0,0>
 p=< 4,0,0>, v=< 0,0,0>, a=<-2,0,0>
@@ -53,5 +108,24 @@ assert find_closest_particle(particles_2)['index'] == 1
 particles_3 = get_particles(io.StringIO(test_data_3))
 assert find_closest_particle(particles_3)['index'] == 0
 
+test_data_collisions = """\
+p=<-6,0,0>, v=< 3,0,0>, a=< 0,0,0>
+p=<-4,0,0>, v=< 2,0,0>, a=< 0,0,0>
+p=<-2,0,0>, v=< 1,0,0>, a=< 0,0,0>
+p=< 3,0,0>, v=<-1,0,0>, a=< 0,0,0>
+"""
+particles = get_particles(io.StringIO(test_data_collisions))
+assert remove_collisions(particles) == {3}
+
+test_data_collisions = """\
+p=<-6,6,0>, v=< 3,-3,0>, a=< 0,0,0>
+p=<-4,0,0>, v=< 2,0,0>, a=< 0,0,0>
+p=<0,-2,0>, v=< 0,1,0>, a=< 0,0,0>
+p=< 3,0,0>, v=<-1,0,0>, a=< 0,0,0>
+"""
+particles = get_particles(io.StringIO(test_data_collisions))
+assert remove_collisions(particles) == {3}
+
 particles = get_particles(sys.stdin)
 print(find_closest_particle(particles)['index'])
+print(len(remove_collisions(particles)))
