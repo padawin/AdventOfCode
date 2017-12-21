@@ -4,12 +4,12 @@ import math
 
 
 def get_nb_active_bits(s):
-    c = 0
-    s = int(''.join(s), 2)
-    while s:
-        c += 1
-        s &= s - 1
-    return c
+    s = ''.join(s)
+    active = 0
+    for c in s:
+        if c == '1':
+            active += 1
+    return active
 
 
 def _rotate_clockwise(matrix):
@@ -116,5 +116,5 @@ assert new_matrix == [
 ]
 assert get_nb_active_bits(new_matrix) == 12
 
-new_matrix = process(sys.stdin, 5)
+new_matrix = process(sys.stdin, 18)
 print(get_nb_active_bits(new_matrix))
