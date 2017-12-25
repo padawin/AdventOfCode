@@ -52,6 +52,30 @@ def find_strongest_path(edges, edges_per_vertex):
     return max_path, max_strength
 
 
+def find_longest_path(edges, edges_per_vertex):
+    max_length = 0
+    max_strength = 0
+    max_path = None
+    current_path = set()
+    current_vertex = 0
+    branches = [(current_vertex, edges_per_vertex[current_vertex], current_path)]
+    loop = 0
+    while len(branches):
+        path = _find_path(edges_per_vertex, branches)
+        length_path = len(path)
+        # print(length_path)
+        strength_path = _calculate_path_strength(edges, path)
+        if (
+            length_path == max_length and strength_path > max_strength
+            or length_path > max_length
+        ):
+            max_strength = strength_path
+            max_length = length_path
+            max_path = path
+
+    return max_path, max_length, max_strength
+
+
 def _calculate_path_strength(edges, path):
     return sum(sum(edges[edge]) for edge in path)
 
@@ -72,5 +96,5 @@ assert strength == 31
 
 
 edges, edges_per_vertex = create_graph(sys.stdin)
-path, strength = find_strongest_path(edges, edges_per_vertex)
+path, length, strength = find_longest_path(edges, edges_per_vertex)
 print(strength)
