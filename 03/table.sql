@@ -1,0 +1,9 @@
+DROP TABLE IF EXISTS rectangle;
+CREATE TABLE rectangle (
+	id SERIAL,
+	id_input INT NOT NULL UNIQUE,
+	x INT NOT NULL,
+	y INT NOT NULL,
+	w INT NOT NULL,
+	h INT NOT NULL
+);
