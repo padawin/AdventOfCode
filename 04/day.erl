@@ -32,7 +32,7 @@ runSupervisor(MostSleepingGuard, MostSleptMinute, MaxDuration) ->
 
 calculateGuardSleepDuration([], Duration) -> Duration;
 calculateGuardSleepDuration([{_, Slept} | SleepingMinutes], Duration) when Slept > 0 ->
-	calculateGuardSleepDuration(SleepingMinutes, Duration + 1);
+	calculateGuardSleepDuration(SleepingMinutes, Duration + Slept);
 calculateGuardSleepDuration([_ | SleepingMinutes], Duration) ->
 	calculateGuardSleepDuration(SleepingMinutes, Duration).
 
