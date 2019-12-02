@@ -52,10 +52,26 @@ func part1() {
 	fmt.Println(res)
 }
 
+func part2() {
+	intcode := getIntCode()
+	var currIntcode []int
+	currIntcode = make([]int, len(intcode))
+	copy(currIntcode, intcode)
+	resInitial := process(currIntcode, 0, 0)
+	copy(currIntcode, intcode)
+	delta := process(currIntcode, 1, 0) - resInitial
+	expectedRes := 19690720
+	noun := (expectedRes - resInitial) / delta
+	verb := expectedRes - (resInitial + (noun * delta))
+	fmt.Println(noun*100 + verb)
+}
+
 func main() {
 	if len(os.Args) != 2 {
 		return
 	} else if os.Args[1] == "1" {
 		part1()
+	} else if os.Args[1] == "2" {
+		part2()
 	}
 }
