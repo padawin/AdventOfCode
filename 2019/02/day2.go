@@ -17,7 +17,7 @@ var operations map[int]func(a, b int) int = map[int]func(a, b int) int{
 	},
 }
 
-func part1() {
+func getIntCode() []int {
 	reader := bufio.NewReader(os.Stdin)
 	line, _, _ := reader.ReadLine()
 	input := strings.Split(string(line), ",")
@@ -26,8 +26,12 @@ func part1() {
 		intVal, _ := strconv.Atoi(val)
 		intcode = append(intcode, intVal)
 	}
-	intcode[1] = 12
-	intcode[2] = 2
+	return intcode
+}
+
+func process(intcode []int, noun, verb int) int {
+	intcode[1] = noun
+	intcode[2] = verb
 	for i := 0; intcode[i] != 99 && i < len(intcode); i += 4 {
 		opcode := intcode[i]
 		in1 := intcode[i+1]
@@ -39,7 +43,13 @@ func part1() {
 		}
 		intcode[output] = operation(intcode[in1], intcode[in2])
 	}
-	fmt.Println(intcode[0])
+	return intcode[0]
+}
+
+func part1() {
+	intcode := getIntCode()
+	res := process(intcode, 12, 2)
+	fmt.Println(res)
 }
 
 func main() {
