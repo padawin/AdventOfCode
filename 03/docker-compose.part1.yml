@@ -1,0 +1,13 @@
+postgres-aoc2018day3:
+  image: postgres
+  container_name: aoc2018day3
+aoc2018day3app:
+  build: ./
+  volumes:
+    - ./:/app
+  links:
+    - postgres-aoc2018day3
+  environment:
+    - DATABASE_URL=postgres://postgres@aoc2018day3:5432/aoc2018day3
+    - SCRIPT=part1.sql
+  command: sh ./run.sh
