@@ -1,1 +1,3 @@
-Advent of code 2017
+# Advent of code
+
+Each year is stored in a separate directory.
