@@ -49,12 +49,17 @@ func processPath(path []string, callback func(coord coordinate)) {
 	}
 }
 
-func part1() {
+func getPaths() ([]string, []string) {
 	reader := bufio.NewReader(os.Stdin)
 	line, _, _ := reader.ReadLine()
 	path1 := strings.Split(string(line), ",")
 	line, _, _ = reader.ReadLine()
 	path2 := strings.Split(string(line), ",")
+	return path1, path2
+}
+
+func part1() {
+	path1, path2 := getPaths()
 	usedCoordinatesWire := make(map[string]bool)
 	closestCoordinate := coordinate{0, 0}
 	processPath(path1, func(coord coordinate) {
