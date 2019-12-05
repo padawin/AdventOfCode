@@ -54,6 +54,34 @@ func process(intcode []int, input int) []int {
 		} else if opcode == 4 {
 			output = append(output, intcode[intcode[i+1]])
 			step = 2
+		} else if opcode == 5 {
+			param1, param2 := getParams(intcode, i)
+			if param1 != 0 {
+				step = param2 - i
+			} else {
+				step = 3
+			}
+		} else if opcode == 6 {
+			param1, param2 := getParams(intcode, i)
+			if param1 == 0 {
+				step = param2 - i
+			} else {
+				step = 3
+			}
+		} else if opcode == 7 {
+			param1, param2 := getParams(intcode, i)
+			intcode[intcode[i+3]] = 0
+			if param1 < param2 {
+				intcode[intcode[i+3]] = 1
+			}
+			step = 4
+		} else if opcode == 8 {
+			param1, param2 := getParams(intcode, i)
+			intcode[intcode[i+3]] = 0
+			if param1 == param2 {
+				intcode[intcode[i+3]] = 1
+			}
+			step = 4
 		} else {
 			fmt.Printf("Opcode at position %d is not valid: %d\n", i, opcode)
 		}
@@ -68,6 +96,9 @@ func part1() {
 }
 
 func part2() {
+	intcode := getIntCode()
+	res := process(intcode, 5)
+	fmt.Println(res[len(res)-1])
 }
 
 func main() {
@@ -77,5 +108,38 @@ func main() {
 		part1()
 	} else if os.Args[1] == "2" {
 		part2()
+	} else if os.Args[1] == "test" {
+		type testcase struct {
+			intcode []int
+			input   int
+			res     int
+		}
+		tests := []testcase{
+			{[]int{3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8}, 8, 1},
+			{[]int{3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8}, 5, 0},
+			{[]int{3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8}, 0, 1},
+			{[]int{3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8}, 8, 0},
+			{[]int{3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8}, 15, 0},
+
+			{[]int{3, 3, 1108, -1, 8, 3, 4, 3, 99}, 8, 1},
+			{[]int{3, 3, 1108, -1, 8, 3, 4, 3, 99}, 5, 0},
+			{[]int{3, 3, 1107, -1, 8, 3, 4, 3, 99}, 0, 1},
+			{[]int{3, 3, 1107, -1, 8, 3, 4, 3, 99}, 8, 0},
+			{[]int{3, 3, 1107, -1, 8, 3, 4, 3, 99}, 15, 0},
+
+			{[]int{3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9}, -10, 1},
+			{[]int{3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9}, 0, 0},
+			{[]int{3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9}, 5, 1},
+			{[]int{3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9}, 10, 1},
+
+			{[]int{3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1}, -10, 1},
+			{[]int{3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1}, 0, 0},
+			{[]int{3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1}, 10, 1},
+		}
+		for _, test := range tests {
+			fmt.Println(test)
+			res := process(test.intcode, test.input)
+			fmt.Println(res[len(res)-1] == test.res)
+		}
 	}
 }
