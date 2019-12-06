@@ -47,6 +47,25 @@ func countOrbits(orbits map[string]string) int {
 	return res
 }
 
+func findPathToRoot(objects map[string]string, obj string) []string {
+	var res []string
+	for obj != "" {
+		res = append([]string{obj}, res...)
+		obj = objects[obj]
+	}
+	return res
+}
+
+func findShortestPath(objects map[string]string, obj1 string, obj2 string) int {
+	obj1ToRoot := findPathToRoot(objects, obj1)
+	obj2ToRoot := findPathToRoot(objects, obj2)
+	for obj1ToRoot[0] == obj2ToRoot[0] {
+		obj1ToRoot = obj1ToRoot[1:]
+		obj2ToRoot = obj2ToRoot[1:]
+	}
+	return len(obj1ToRoot) - 1 + len(obj2ToRoot) - 1
+}
+
 func part1() {
 	objects := getObjects()
 	res := countOrbits(objects)
@@ -54,6 +73,9 @@ func part1() {
 }
 
 func part2() {
+	objects := getObjects()
+	res := findShortestPath(objects, "YOU", "SAN")
+	fmt.Println(res)
 }
 
 func main() {
