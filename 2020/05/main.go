@@ -43,6 +43,29 @@ func part1() {
 	fmt.Println(maxID)
 }
 
+func part2() {
+	minID := -1
+	maxID := -1
+	sumIDs := 0
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		line := scanner.Text()
+		_, _, id := calculateSeat(line)
+		if minID == -1 || id < minID {
+			minID = id
+		}
+		if maxID == -1 || id > maxID {
+			maxID = id
+		}
+
+		sumIDs += id
+	}
+	sumMissingIDs := minID*(minID+1)/2 - minID
+	sumTotalIDs := maxID*(maxID+1)/2 - sumMissingIDs
+	myID := sumTotalIDs - sumIDs
+	fmt.Println(myID)
+}
+
 func main() {
 	if len(os.Args) != 2 {
 		fmt.Println("Usage: main.go [1|2]")
@@ -50,5 +73,7 @@ func main() {
 	}
 	if os.Args[1] == "1" {
 		part1()
+	} else {
+		part2()
 	}
 }
