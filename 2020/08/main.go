@@ -22,11 +22,13 @@ func readInstruction(line string) instruction {
 	return instr
 }
 
-func runProgram(instructions []instruction) int {
+func runProgram(instructions []instruction) (int, bool) {
 	cursor := 0
 	accumulator := 0
-	for {
+	infiniteLoop := false
+	for cursor < len(instructions) {
 		if instructions[cursor].executed {
+			infiniteLoop = true
 			break
 		}
 		instructions[cursor].executed = true
@@ -39,7 +41,7 @@ func runProgram(instructions []instruction) int {
 			cursor += 1
 		}
 	}
-	return accumulator
+	return accumulator, infiniteLoop
 }
 
 func part1() {
@@ -51,8 +53,41 @@ func part1() {
 		instructions = append(instructions, instr)
 	}
 
-	accumulator := runProgram(instructions)
+	accumulator, _ := runProgram(instructions)
 	fmt.Println(accumulator)
+}
+
+func part2() {
+	instructions := []instruction{}
+	scanner := bufio.NewScanner(os.Stdin)
+	candidatesToChange := []int{}
+	for scanner.Scan() {
+		line := scanner.Text()
+		instr := readInstruction(line)
+		if instr.command == "jmp" || instr.command == "nop" {
+			candidatesToChange = append(candidatesToChange, len(instructions))
+		}
+		instructions = append(instructions, instr)
+	}
+
+	for _, indexToChange := range candidatesToChange {
+		old := instructions[indexToChange].command
+		if instructions[indexToChange].command == "nop" {
+			instructions[indexToChange].command = "jmp"
+		} else {
+			instructions[indexToChange].command = "nop"
+		}
+
+		accumulator, infiniteLoop := runProgram(instructions)
+		if !infiniteLoop {
+			fmt.Println(accumulator)
+			break
+		}
+		instructions[indexToChange].command = old
+		for index, _ := range instructions {
+			instructions[index].executed = false
+		}
+	}
 }
 
 func main() {
@@ -62,5 +97,7 @@ func main() {
 	}
 	if os.Args[1] == "1" {
 		part1()
+	} else {
+		part2()
 	}
 }
