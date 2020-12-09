@@ -64,6 +64,43 @@ func part1(preambleSize int) {
 	}
 }
 
+func sumInts(ints []int) int {
+	res := 0
+	for _, val := range ints {
+		res += val
+	}
+	return res
+}
+
+func part2(resultPart1 int) {
+	contiguous := []int{}
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		line := scanner.Text()
+		val, _ := strconv.Atoi(line)
+		contiguous = append(contiguous, val)
+		sum := sumInts(contiguous)
+		for sumInts(contiguous) > resultPart1 {
+			contiguous = contiguous[1:]
+		}
+		sum = sumInts(contiguous)
+		if sum == resultPart1 {
+			min := 0
+			max := 0
+			for _, v := range contiguous {
+				if min == 0 || v < min {
+					min = v
+				}
+				if v > max {
+					max = v
+				}
+			}
+			fmt.Println(min + max)
+			break
+		}
+	}
+}
+
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: main.go [1|2]")
@@ -80,5 +117,16 @@ func main() {
 			os.Exit(1)
 		}
 		part1(preambleSize)
+	} else if os.Args[1] == "2" {
+		if len(os.Args) != 3 {
+			fmt.Println("Usage: main.go 1 <resultPart1>")
+			os.Exit(1)
+		}
+		resultPart1, err := strconv.Atoi(os.Args[2])
+		if err != nil {
+			fmt.Println("resultPart1 must be an int")
+			os.Exit(1)
+		}
+		part2(resultPart1)
 	}
 }
