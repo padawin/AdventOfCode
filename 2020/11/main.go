@@ -6,19 +6,24 @@ import (
 	"os"
 )
 
-func countPersonInDirection(grid [][]rune, x, y, dirX, dirY int) int {
-	x += dirX
-	y += dirY
-	if x < 0 || x >= len(grid[0]) || y < 0 || y >= len(grid) {
-		return 0
-	} else if grid[y][x] == '#' {
-		return 1
-	} else {
-		return 0
+func countPersonInDirection(grid [][]rune, x, y, dirX, dirY int, shootRay bool) int {
+	for {
+		x += dirX
+		y += dirY
+		if x < 0 || x >= len(grid[0]) || y < 0 || y >= len(grid) {
+			return 0
+		} else if grid[y][x] == '#' {
+			return 1
+		} else if grid[y][x] == 'L' {
+			return 0
+		}
+		if !shootRay {
+			return 0
+		}
 	}
 }
 
-func part1() {
+func part(shootRay bool, minAcceptedNeighbours int) {
 	grid := [][]rune{}
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
@@ -32,19 +37,19 @@ func part1() {
 		nextGrid := make([][]rune, len(grid))
 		for j := range grid {
 			for i := range grid[j] {
-				countNeighbours := countPersonInDirection(grid, i, j, -1, -1)
-				countNeighbours += countPersonInDirection(grid, i, j, 0, -1)
-				countNeighbours += countPersonInDirection(grid, i, j, 1, -1)
-				countNeighbours += countPersonInDirection(grid, i, j, -1, 0)
-				countNeighbours += countPersonInDirection(grid, i, j, 1, 0)
-				countNeighbours += countPersonInDirection(grid, i, j, -1, 1)
-				countNeighbours += countPersonInDirection(grid, i, j, 0, 1)
-				countNeighbours += countPersonInDirection(grid, i, j, 1, 1)
+				countNeighbours := countPersonInDirection(grid, i, j, -1, -1, shootRay)
+				countNeighbours += countPersonInDirection(grid, i, j, 0, -1, shootRay)
+				countNeighbours += countPersonInDirection(grid, i, j, 1, -1, shootRay)
+				countNeighbours += countPersonInDirection(grid, i, j, -1, 0, shootRay)
+				countNeighbours += countPersonInDirection(grid, i, j, 1, 0, shootRay)
+				countNeighbours += countPersonInDirection(grid, i, j, -1, 1, shootRay)
+				countNeighbours += countPersonInDirection(grid, i, j, 0, 1, shootRay)
+				countNeighbours += countPersonInDirection(grid, i, j, 1, 1, shootRay)
 				var r rune
 				if grid[j][i] == 'L' && countNeighbours == 0 {
 					r = '#'
 					hasChanges = true
-				} else if grid[j][i] == '#' && countNeighbours >= 4 {
+				} else if grid[j][i] == '#' && countNeighbours >= minAcceptedNeighbours {
 					r = 'L'
 					hasChanges = true
 				} else {
@@ -70,6 +75,8 @@ func main() {
 		os.Exit(1)
 	}
 	if os.Args[1] == "1" {
-		part1()
+		part(false, 4)
+	} else {
+		part(true, 5)
 	}
 }
