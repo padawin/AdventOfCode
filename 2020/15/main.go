@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func part1() {
+func part(endTurn int) {
 	scanner := bufio.NewScanner(os.Stdin)
 	currTurn := 0
 	lastSpokenNumber := ""
@@ -20,7 +20,7 @@ func part1() {
 		lastSpokenNumber = line
 	}
 	delete(spokenToTurn, lastSpokenNumber)
-	for currTurn != 2020 {
+	for currTurn != endTurn {
 		currTurn++
 		if turn, found := spokenToTurn[lastSpokenNumber]; !found {
 			spokenToTurn[lastSpokenNumber] = currTurn - 1
@@ -39,6 +39,8 @@ func main() {
 		os.Exit(1)
 	}
 	if os.Args[1] == "1" {
-		part1()
+		part(2020)
+	} else {
+		part(30000000)
 	}
 }
