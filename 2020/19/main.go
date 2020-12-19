@@ -21,6 +21,12 @@ type rule struct {
 func (r *rule) compute(rules map[int]*rule) {
 	if r.computed != "" {
 		return
+	} else if r.id == 8 {
+		r.computed = fmt.Sprintf("(?:%s)+", rules[42].computed)
+		return
+	} else if r.id == 11 {
+		r.computed = fmt.Sprintf("(?:%s)+(?:%s)+", rules[42].computed, rules[31].computed)
+		return
 	}
 	val := ""
 	val = rules[r.val1].computed
@@ -49,7 +55,9 @@ func computeRules(computedRules map[int]struct{}, rules map[int]*rule) {
 			_, foundVal2 := computedRules[r.val2]
 			_, foundVal3 := computedRules[r.val3]
 			_, foundVal4 := computedRules[r.val4]
-			if (r.val1 == -1 || foundVal1) && (r.val2 == -1 || foundVal2) && (r.val3 == -1 || foundVal3) && (r.val4 == -1 || foundVal4) {
+			_, found42 := computedRules[42]
+			_, found31 := computedRules[31]
+			if (found42 && r.id == 8) || (found42 && found31 && r.id == 11) || (r.val1 == -1 || foundVal1) && (r.val2 == -1 || foundVal2) && (r.val3 == -1 || foundVal3) && (r.val4 == -1 || foundVal4) {
 				r.compute(rules)
 				computedRules[r.id] = struct{}{}
 				countComputed++
@@ -58,15 +66,21 @@ func computeRules(computedRules map[int]struct{}, rules map[int]*rule) {
 		if countComputed == len(rules) {
 			return
 		}
+		fmt.Println("Keep computing", countComputed, len(rules))
 	}
 }
 
 func part1() {
 	scanner := bufio.NewScanner(os.Stdin)
-	res := 0
+	res1 := 0
+	res2 := 0
+	res3 := 0
 	rules := map[int]*rule{}
 	current := "rules"
 	var regexRuleZero *regexp.Regexp
+	var regexRuleZeroBis *regexp.Regexp
+	var regexRule42 *regexp.Regexp
+	var regexRule31 *regexp.Regexp
 	computedRules := map[int]struct{}{}
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -74,6 +88,9 @@ func part1() {
 			computeRules(computedRules, rules)
 			r := fmt.Sprintf("^%s$", rules[0].computed)
 			regexRuleZero = regexp.MustCompile(r)
+			regexRuleZeroBis = regexp.MustCompile(fmt.Sprintf("^(?:%s)+(?:%s)+$", rules[42].computed, rules[31].computed))
+			regexRule42 = regexp.MustCompile(fmt.Sprintf("%s", rules[42].computed))
+			regexRule31 = regexp.MustCompile(fmt.Sprintf("%s", rules[31].computed))
 			current = "messages"
 		} else if current == "rules" {
 			regexRule := regexp.MustCompile(`^(\d+): (?:"([a-z])"|(\d+)(?: (\d+))?(?: \| (\d+)(?: (\d+))?)?)`)
@@ -101,12 +118,42 @@ func part1() {
 			}
 			rules[r.id] = &r
 		} else if current == "messages" {
+			t1 := false
+			t2 := false
+			t3 := false
 			if regexRuleZero.Match([]byte(line)) {
-				res++
+				t1 = true
+				res1++
+			}
+			if regexRuleZeroBis.Match([]byte(line)) {
+				t2 = true
+				res2++
+			}
+			for {
+				old := line
+				line = regexRule42.ReplaceAllString(line, "<")
+				if len(old) == len(line) {
+					break
+				}
+			}
+			for {
+				old := line
+				line = regexRule31.ReplaceAllString(line, ">")
+				if len(old) == len(line) {
+					break
+				}
+			}
+			if len(line) == 0 {
+				t3 = true
+				res3++
+			}
+			if t1 || t2 || t3 {
+				fmt.Println(line)
+				fmt.Println(t1, t2, t3)
 			}
 		}
 	}
-	fmt.Println(res)
+	fmt.Println(res1, res2, res3)
 }
 
 func main() {
